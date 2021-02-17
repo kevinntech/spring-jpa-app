@@ -15,14 +15,15 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 
 @Controller
 @RequiredArgsConstructor
 public class AccountController {
 
     private final SignUpFormValidator signUpFormValidator;
-
     private final AccountService accountService;
+    private final AccountRepository accountRepository;
 
     // signUpForm 데이터를 받을 때, 사용 할 바인더 및 Validator 설정
     @InitBinder("signUpForm")
@@ -46,6 +47,32 @@ public class AccountController {
         accountService.processNewAccount(signUpForm);
 
         return "redirect:/";
+    }
+
+
+    @GetMapping("/check-email-token")
+    public String checkEmailToken(String token, String email, Model model){
+        Account account = accountRepository.findByEmail(email);
+        String view = "account/checked-email";
+
+        // 에러가 있다면 모델 정보에 error 정보를 추가한다.
+        if(account == null){
+            model.addAttribute("error", "wrong.email");
+            return view;
+        }
+
+        // 회원의 토큰 정보와 전달 받은 토큰 정보가 일치하지 않으면 모델 정보에 error 정보를 추가한다.
+        if(!account.getEmailCheckToken().equals(token)){
+            model.addAttribute("error", "wrong.token");
+            return view;
+        }
+
+        account.setEmailVerified(true);             // 이메일 인증 여부 지정
+        account.setJoinedAt(LocalDateTime.now());   // 가입 날짜 지정
+        model.addAttribute("numberOfUser", accountRepository.count()); // 현재 회원 수
+        model.addAttribute("nickname", account.getNickname()); // 닉네임
+
+        return view;
     }
 
 }

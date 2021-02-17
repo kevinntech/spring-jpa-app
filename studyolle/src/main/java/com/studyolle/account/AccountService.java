@@ -7,7 +7,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.validation.Valid;
+import javax.transaction.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +28,7 @@ public class AccountService {
                 .build();
 
         // 회원 저장
+        // accountRepository.save() 안에서는 트랜잭션 처리가 되며 account는 persist 상태이다.
         return accountRepository.save(account);
     }
 
@@ -41,8 +42,11 @@ public class AccountService {
         javaMailSender.send(mailMessage);
     }
 
+    @Transactional // 트랜잭션 처리
     public void processNewAccount(SignUpForm signUpForm) {
         // (1) 새로운 회원을 생성해서 저장한다.
+        //     여기서는 트랜잭션의 범위를 벗어났기 때문에 account는 detached 상태이다.
+        //     이 문제를 해결하려면 processNewAccount()에 @Transactional로 트랜잭션 처리를 해주어야 한다.
         Account newAccount = saveNewAccount(signUpForm);
 
         // (2) 이메일 인증 토큰을 생성한다.
@@ -51,4 +55,5 @@ public class AccountService {
         // (3) 가입 확인 이메일을 전송한다.
         sendSignUpConfirmEmail(newAccount);
     }
+
 }

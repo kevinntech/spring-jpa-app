@@ -80,6 +80,7 @@ class AccountControllerTest {
         * 다르다면 그것은 암호화가 되었다는 것으로 판단하고 테스트 코드를 작성한다.
         * */
         assertNotEquals(account.getPassword(), "12345678");
+        assertNotNull(account.getEmailCheckToken()); // 토큰이 null이 아닌지 확인한다.
         // 어떤 SimpleMailMessage 타입이든 send()가 호출 되었는지 확인한다.
         then(javaMailSender).should().send(any(SimpleMailMessage.class));
     }

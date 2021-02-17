@@ -4,6 +4,7 @@ import com.studyolle.domain.Account;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
@@ -14,13 +15,14 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final JavaMailSender javaMailSender;
+    private final PasswordEncoder passwordEncoder;
 
     private Account saveNewAccount(SignUpForm signUpForm) {
         // 회원 생성
         Account account = Account.builder()
                 .email(signUpForm.getEmail())
                 .nickname(signUpForm.getNickname())
-                .password(signUpForm.getPassword()) // TODO 패스워드 인코딩 필요
+                .password(passwordEncoder.encode(signUpForm.getPassword())) // 패스워드를 인코딩한다.
                 .studyCreatedByWeb(true)
                 .studyEnrollmentResultByWeb(true)
                 .build();

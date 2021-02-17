@@ -1,5 +1,6 @@
 package com.studyolle.account;
 
+import com.studyolle.domain.Account;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -59,7 +60,7 @@ class AccountControllerTest {
                 .andExpect(view().name("account/sign-up"));
     }
 
-    @DisplayName("회원 가입 처리 - 입력 값 오류")
+    @DisplayName("회원 가입 처리 - 입력 값 정상")
     @Test
     void signUpSubmit_with_correct_input() throws Exception {
         mockMvc.perform(post("/sign-up")
@@ -70,8 +71,15 @@ class AccountControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/"));
 
-        assertTrue(accountRepository.existsByEmail("kevin@email.com"));
+        Account account = accountRepository.findByEmail("kevin@email.com");
 
+        assertNotNull(account);
+
+        /*
+        * 사용자가 입력한 패스워드(12345678)와 회원에 저장된 패스워드를 비교 했을 때,
+        * 다르다면 그것은 암호화가 되었다는 것으로 판단하고 테스트 코드를 작성한다.
+        * */
+        assertNotEquals(account.getPassword(), "12345678");
         // 어떤 SimpleMailMessage 타입이든 send()가 호출 되었는지 확인한다.
         then(javaMailSender).should().send(any(SimpleMailMessage.class));
     }

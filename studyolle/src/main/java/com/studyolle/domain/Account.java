@@ -68,4 +68,10 @@ public class Account {
     public void generateEmailCheckToken() {
         this.emailCheckToken = UUID.randomUUID().toString();
     }
+
+    public void completeSignUp() {
+        this.emailVerified = true; // 이메일 인증 여부 지정
+        this.joinedAt = LocalDateTime.now(); // 가입 날짜 지정
+    }
+
 }

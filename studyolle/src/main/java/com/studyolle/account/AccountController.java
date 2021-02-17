@@ -67,8 +67,9 @@ public class AccountController {
             return view;
         }
 
-        account.setEmailVerified(true);             // 이메일 인증 여부 지정
-        account.setJoinedAt(LocalDateTime.now());   // 가입 날짜 지정
+        // 회원 가입을 완료한다.
+        account.completeSignUp();
+
         model.addAttribute("numberOfUser", accountRepository.count()); // 현재 회원 수
         model.addAttribute("nickname", account.getNickname()); // 닉네임
 

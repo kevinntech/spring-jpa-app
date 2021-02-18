@@ -1,9 +1,14 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="fragments.html :: head"></head>
 <body class="bg-light">
     <div th:replace="fragments.html :: main-nav"></div>
-
+    <div class="alert alert-warning" role="alert" th:if="${account != null && !account.emailVerified}">
+        스터디올레 가입을 완료하려면 <a href="#" th:href="@{/check-email}" class="alert-link">계정 인증 이메일을 확인</a>하세요.
+    </div>
+    
     <div class="container">
         <div class="py-5 text-center">
             <h2>스터디올래</h2>
@@ -11,30 +16,9 @@
 
         <div th:replace="fragments.html :: footer"></div>
     </div>
-
-    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
-    <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- 폼 검증 -->
     <script type="application/javascript">
         (function () {
-            'use strict';
 
-            window.addEventListener('load', function () {
-                // Fetch all the forms we want to apply custom Bootstrap validation styles to
-                var forms = document.getElementsByClassName('needs-validation'); // CSS 클래스명이 needs-validation인 것을 찾는다.
-
-                // Loop over them and prevent submission
-                Array.prototype.filter.call(forms, function (form) {
-                    form.addEventListener('submit', function (event) { // submit 이벤트 발생 시, 해당 폼이 유효하지 않으면 Submit이 되지 않도록 한다.
-                        if (form.checkValidity() === false) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                        }
-                        form.classList.add('was-validated')
-                    }, false)
-                })
-            }, false)
         }())
     </script>
 </body>

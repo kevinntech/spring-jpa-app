@@ -74,4 +74,7 @@ public class Account {
         this.joinedAt = LocalDateTime.now(); // 가입 날짜 지정
     }
 
+    public boolean isValidToken(String token) {
+        return this.emailCheckToken.equals(token);
+    }
 }

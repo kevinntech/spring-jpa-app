@@ -44,7 +44,8 @@ public class AccountController {
         }
 
         // 회원 가입 처리
-        accountService.processNewAccount(signUpForm);
+        Account account = accountService.processNewAccount(signUpForm);
+        accountService.login(account); // 로그인 처리
 
         return "redirect:/";
     }
@@ -62,13 +63,19 @@ public class AccountController {
         }
 
         // 회원의 토큰 정보와 전달 받은 토큰 정보가 일치하지 않으면 모델 정보에 error 정보를 추가한다.
-        if(!account.getEmailCheckToken().equals(token)){
+        if(!account.isValidToken(token)){
             model.addAttribute("error", "wrong.token");
             return view;
         }
 
         // 회원 가입을 완료한다.
         account.completeSignUp();
+
+        /*
+        * 이때는 데이터베이스에서 읽어온 Account 안에는 평문으로 된 패스워드가 존재하지 않는다.
+        * 그렇기 때문에 정석적이지 않은 방식으로 로그인을 처리한다.
+        * */
+        accountService.login(account); // 로그인 처리
 
         model.addAttribute("numberOfUser", accountRepository.count()); // 현재 회원 수
         model.addAttribute("nickname", account.getNickname()); // 닉네임

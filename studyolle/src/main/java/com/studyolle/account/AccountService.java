@@ -1,6 +1,7 @@
 package com.studyolle.account;
 
 import com.studyolle.domain.Account;
+import com.studyolle.settings.Profile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -99,5 +100,18 @@ public class AccountService implements UserDetailsService {
     public void completeSignUp(Account account) {
         account.completeSignUp();
         login(account);
+    }
+
+    public void updateProfile(Account account, Profile profile) {
+        account.setUrl(profile.getUrl());
+        account.setOccupation(profile.getOccupation());
+        account.setLocation(profile.getLocation());
+        account.setBio(profile.getBio());
+
+        // TODO 프로필 이미지
+
+        accountRepository.save(account);
+
+        // TODO 처리하지 못한 문제가 하나 더 남았다. (프로필 이미지 변경 시 발견 될 예정)
     }
 }

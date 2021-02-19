@@ -17,4 +17,11 @@ public class MainController {
 
         return "index";
     }
+
+    // 로그인 페이지를 보여준다.
+    @GetMapping("/login")
+    public String login(){
+        return "login";
+    }
+
 }

@@ -10,6 +10,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +21,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class AccountService {
+public class AccountService implements UserDetailsService {
 
     private final AccountRepository accountRepository;
     private final JavaMailSender javaMailSender;
@@ -73,5 +76,25 @@ public class AccountService {
         );
 
         SecurityContextHolder.getContext().setAuthentication(token);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String emailOrNickname) throws UsernameNotFoundException {
+        // 처음에는 이메일을 입력할 것이라 가정한다.
+        Account account = accountRepository.findByEmail(emailOrNickname);
+
+        // 이메일로 유저를 찾았을 때, null이면
+        if(account == null){
+            // 닉네임으로 유저를 한번 더 찾아본다.
+            account = accountRepository.findByNickname(emailOrNickname);
+        }
+
+        // 그래도 account가 null이면 UsernameNotFoundException 예외를 발생 시킨다.
+        if(account == null){
+            throw new UsernameNotFoundException(emailOrNickname);
+        }
+
+        // 위의 과정을 통과 했다면 유저가 있다는 것이므로 Principal에 해당하는 객체(UserAccount)를 반환하면 된다.
+        return new UserAccount(account);
     }
 }

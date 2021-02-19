@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.User;
 import java.util.List;
 
 @Getter
-public class UserAccount extends User {
+public class UserAccount extends User { // 스프링 시큐리티가 제공하는 User를 확장한 UserAccount
 
     private Account account;
 

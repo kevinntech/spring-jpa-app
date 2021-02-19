@@ -66,7 +66,7 @@ public class AccountController {
         }
 
         // 회원 가입을 완료한다.
-        account.completeSignUp();
+        accountService.completeSignUp(account);
 
         /*
         * 이때는 데이터베이스에서 읽어온 Account 안에는 평문으로 된 패스워드가 존재하지 않는다.

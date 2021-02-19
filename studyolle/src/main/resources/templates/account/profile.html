@@ -64,7 +64,7 @@
                                 <i class="fa fa-calendar-o col-1"></i>
                             </span>
                         <span th:if="${isOwner && !account.emailVerified}" class="col-9">
-                                <a href="#" th:href="@{'/checkemail?email=' + ${account.email}}">가입을 완료하려면 이메일을 확인하세요.</a>
+                                <a href="#" th:href="@{'/check-email?email=' + ${account.email}}">가입을 완료하려면 이메일을 확인하세요.</a>
                             </span>
                         <span th:text="${#temporals.format(account.joinedAt, 'yyyy년 M월 가입')}" class="col-9"></span>
                     </p>

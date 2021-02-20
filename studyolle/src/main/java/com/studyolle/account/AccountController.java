@@ -2,17 +2,16 @@ package com.studyolle.account;
 
 import com.studyolle.domain.Account;
 import lombok.RequiredArgsConstructor;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
-import java.time.LocalDateTime;
 
 @Controller
 @RequiredArgsConstructor
@@ -67,12 +66,6 @@ public class AccountController {
 
         // 회원 가입을 완료한다.
         accountService.completeSignUp(account);
-
-        /*
-        * 이때는 데이터베이스에서 읽어온 Account 안에는 평문으로 된 패스워드가 존재하지 않는다.
-        * 그렇기 때문에 정석적이지 않은 방식으로 로그인을 처리한다.
-        * */
-        accountService.login(account); // 로그인 처리
 
         model.addAttribute("numberOfUser", accountRepository.count()); // 현재 회원 수
         model.addAttribute("nickname", account.getNickname()); // 닉네임

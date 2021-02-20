@@ -53,23 +53,19 @@ public class Account {
     // 스터디 생성 여부를 이메일 또는 웹으로 전달 받을 것인가?
     private boolean studyCreatedByEmail;
 
-    private boolean studyCreatedByWeb;
+    private boolean studyCreatedByWeb = true;
 
     // 스터디가 운영하는 모임에 가입 신청 결과를 이메일 또는 웹으로 전달 받을 것인가?
     private boolean studyEnrollmentResultByEmail;
 
-    private boolean studyEnrollmentResultByWeb;
+    private boolean studyEnrollmentResultByWeb = true;
 
     // 스터디 수정 여부를 이메일 또는 웹으로 전달 받을 것인가?
     private boolean studyUpdatedByEmail;
 
-    private boolean studyUpdatedByWeb;
+    private boolean studyUpdatedByWeb = true;
 
     private LocalDateTime emailCheckTokenGeneratedAt;
-
-    public boolean canSendConfirmEmail() {
-        return this.emailCheckTokenGeneratedAt.isBefore(LocalDateTime.now().minusHours(1));
-    }
 
     public void generateEmailCheckToken() {
         this.emailCheckToken = UUID.randomUUID().toString();
@@ -84,4 +80,9 @@ public class Account {
     public boolean isValidToken(String token) {
         return this.emailCheckToken.equals(token);
     }
+
+    public boolean canSendConfirmEmail() {
+        return this.emailCheckTokenGeneratedAt.isBefore(LocalDateTime.now().minusHours(1));
+    }
+
 }

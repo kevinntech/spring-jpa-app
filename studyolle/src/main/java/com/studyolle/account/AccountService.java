@@ -1,6 +1,7 @@
 package com.studyolle.account;
 
 import com.studyolle.domain.Account;
+import com.studyolle.settings.Notifications;
 import com.studyolle.settings.Profile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
@@ -26,31 +27,6 @@ public class AccountService implements UserDetailsService {
     private final JavaMailSender javaMailSender;
     private final PasswordEncoder passwordEncoder;
 
-    private Account saveNewAccount(SignUpForm signUpForm) {
-        // 회원 생성
-        Account account = Account.builder()
-                .email(signUpForm.getEmail())
-                .nickname(signUpForm.getNickname())
-                .password(passwordEncoder.encode(signUpForm.getPassword())) // 패스워드를 인코딩한다.
-                .studyCreatedByWeb(true)
-                .studyEnrollmentResultByWeb(true)
-                .build();
-
-        // 회원 저장
-        // accountRepository.save() 안에서는 트랜잭션 처리가 되며 account는 persist 상태이다.
-        return accountRepository.save(account);
-    }
-
-    public void sendSignUpConfirmEmail(Account newAccount) {
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(newAccount.getEmail());
-        mailMessage.setSubject("스터디올래, 회원 가입 인증");
-        mailMessage.setText("/check-email-token?token=" + newAccount.getEmailCheckToken() +
-                "&email=" + newAccount.getEmail() );
-
-        javaMailSender.send(mailMessage);
-    }
-
     public Account processNewAccount(SignUpForm signUpForm) {
         // (1) 새로운 회원을 생성해서 저장한다.
         //     여기서는 트랜잭션의 범위를 벗어났기 때문에 account는 detached 상태이다.
@@ -64,6 +40,31 @@ public class AccountService implements UserDetailsService {
         sendSignUpConfirmEmail(newAccount);
 
         return newAccount;
+    }
+
+    private Account saveNewAccount(SignUpForm signUpForm) {
+        // 회원 생성
+        Account account = Account.builder()
+                .email(signUpForm.getEmail())
+                .nickname(signUpForm.getNickname())
+                .password(passwordEncoder.encode(signUpForm.getPassword())) // 패스워드를 인코딩한다.
+                .studyCreatedByWeb(true)
+                .studyEnrollmentResultByWeb(true)
+                .studyUpdatedByWeb(true)
+                .build();
+
+        // 회원 저장
+        return accountRepository.save(account);
+    }
+
+    public void sendSignUpConfirmEmail(Account newAccount) {
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(newAccount.getEmail());
+        mailMessage.setSubject("스터디올래, 회원 가입 인증");
+        mailMessage.setText("/check-email-token?token=" + newAccount.getEmailCheckToken() +
+                "&email=" + newAccount.getEmail() );
+
+        javaMailSender.send(mailMessage);
     }
 
     public void login(Account account) {
@@ -99,6 +100,11 @@ public class AccountService implements UserDetailsService {
 
     public void completeSignUp(Account account) {
         account.completeSignUp();
+
+        /*
+         * 이때는 데이터베이스에서 읽어온 Account 안에는 평문으로 된 패스워드가 존재하지 않는다.
+         * 그렇기 때문에 정석적이지 않은 방식으로 로그인을 처리한다.
+         * */
         login(account);
     }
 
@@ -113,6 +119,16 @@ public class AccountService implements UserDetailsService {
 
     public void updatePassword(Account account, String newPassword) {
         account.setPassword(passwordEncoder.encode(newPassword));
+        accountRepository.save(account);
+    }
+
+    public void updateNotifications(Account account, Notifications notifications) {
+        account.setStudyCreatedByWeb(notifications.isStudyCreatedByWeb());
+        account.setStudyCreatedByEmail(notifications.isStudyCreatedByEmail());
+        account.setStudyUpdatedByWeb(notifications.isStudyUpdatedByWeb());
+        account.setStudyUpdatedByEmail(notifications.isStudyUpdatedByEmail());
+        account.setStudyEnrollmentResultByEmail(notifications.isStudyEnrollmentResultByEmail());
+        account.setStudyEnrollmentResultByWeb(notifications.isStudyEnrollmentResultByWeb());
         accountRepository.save(account);
     }
 

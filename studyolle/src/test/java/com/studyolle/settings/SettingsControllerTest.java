@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -25,6 +25,8 @@ class SettingsControllerTest {
     @Autowired MockMvc mockMvc;
 
     @Autowired AccountRepository accountRepository;
+
+    @Autowired PasswordEncoder passwordEncoder;
 
     // 매번 테스트가 끝난 다음에는 계정을 삭제
     @AfterEach
@@ -88,6 +90,59 @@ class SettingsControllerTest {
 
         Account kevin = accountRepository.findByNickname("kevin");
         assertNull(kevin.getBio());
+    }
+
+    @WithAccount("kevin")
+    @DisplayName("패스워드 수정 폼")
+    @Test
+    void updatePassword_form() throws Exception {
+        /*
+         * SETTINGS_PASSWORD_URL로 요청 했을 때, 상태 값이 OK 인지 모델에 뷰를 보여줄 때
+         * 필요한 정보(account, passwordForm)가 있는지 확인한다.
+         * */
+        mockMvc.perform(get(SettingsController.SETTINGS_PASSWORD_URL))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("passwordForm"));
+    }
+
+    @WithAccount("kevin")
+    @DisplayName("패스워드 수정 - 입력값 정상")
+    @Test
+    void updatePassword_success() throws Exception {
+        /*
+         * SETTINGS_PASSWORD_URL로 POST 요청 했을 때, 입력 값(newPassword,newPasswordConfirm)이 같도록 함
+         * csrf 토큰을 넣어준다. 그리고 상태 값은 리다이렉션 상태일 것이며 리다이렉트되는 URL은 SETTINGS_PASSWORD_URL이며
+         * flashAttribute에 message가 있는지 확인한다.
+         * */
+        mockMvc.perform(post(SettingsController.SETTINGS_PASSWORD_URL)
+                .param("newPassword", "12345678")
+                .param("newPasswordConfirm", "12345678")
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl(SettingsController.SETTINGS_PASSWORD_URL))
+                .andExpect(flash().attributeExists("message"));
+
+        /*
+         * 마지막으로는 passwordEncoder를 주입 받은 다음, 실제 변경된 패스워드가 매치되는지 확인한다.
+         * */
+        Account kevin = accountRepository.findByNickname("kevin");
+        assertTrue(passwordEncoder.matches("12345678", kevin.getPassword()));
+    }
+
+    @WithAccount("kevin")
+    @DisplayName("패스워드 수정 - 입력값 에러 - 패스워드 불일치")
+    @Test
+    void updatePassword_fail() throws Exception {
+        mockMvc.perform(post(SettingsController.SETTINGS_PASSWORD_URL)
+                .param("newPassword", "12345678")
+                .param("newPasswordConfirm", "11111111")
+                .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(view().name(SettingsController.SETTINGS_PASSWORD_VIEW_NAME))
+                .andExpect(model().hasErrors())
+                .andExpect(model().attributeExists("passwordForm"))
+                .andExpect(model().attributeExists("account"));
     }
 
 }

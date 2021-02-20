@@ -109,7 +109,11 @@ public class AccountService implements UserDetailsService {
         account.setBio(profile.getBio());
         account.setProfileImage(profile.getProfileImage());
         accountRepository.save(account);
-
-        // TODO 프로필 이미지를 변경하더라도 네비게이션 바는 변경되지 않는 문제가 남아 있다.
     }
+
+    public void updatePassword(Account account, String newPassword) {
+        account.setPassword(passwordEncoder.encode(newPassword));
+        accountRepository.save(account);
+    }
+
 }

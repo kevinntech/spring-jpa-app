@@ -107,11 +107,9 @@ public class AccountService implements UserDetailsService {
         account.setOccupation(profile.getOccupation());
         account.setLocation(profile.getLocation());
         account.setBio(profile.getBio());
-
-        // TODO 프로필 이미지
-
+        account.setProfileImage(profile.getProfileImage());
         accountRepository.save(account);
 
-        // TODO 처리하지 못한 문제가 하나 더 남았다. (프로필 이미지 변경 시 발견 될 예정)
+        // TODO 프로필 이미지를 변경하더라도 네비게이션 바는 변경되지 않는 문제가 남아 있다.
     }
 }

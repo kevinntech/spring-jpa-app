@@ -131,4 +131,13 @@ public class AccountService implements UserDetailsService {
         login(account);
     }
 
+    public void sendLoginLink(Account account) {
+        account.generateEmailCheckToken(); // 토큰을 새롭게 생성한다.
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(account.getEmail());
+        mailMessage.setSubject("스터디올래, 로그인 링크");
+        mailMessage.setText("/login-by-email?token=" + account.getEmailCheckToken() +
+                "&email=" + account.getEmail());
+        javaMailSender.send(mailMessage); // 이메일을 전송한다.
+    }
 }

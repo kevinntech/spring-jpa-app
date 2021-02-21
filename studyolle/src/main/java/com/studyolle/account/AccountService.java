@@ -153,4 +153,10 @@ public class AccountService implements UserDetailsService {
         Optional<Account> byId = accountRepository.findById(account.getId());
         return byId.orElseThrow().getTags(); // 없으면 에러를 던지고 있다면 태그 정보를 리턴한다.
     }
+
+    public void removeTag(Account account, Tag tag) {
+        Optional<Account> byId = accountRepository.findById(account.getId());
+        byId.ifPresent(a -> a.getTags().remove(tag));
+    }
+
 }

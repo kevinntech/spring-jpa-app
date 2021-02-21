@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -148,4 +149,8 @@ public class AccountService implements UserDetailsService {
         byId.ifPresent(a -> a.getTags().add(tag));
     }
 
+    public Set<Tag> getTags(Account account) {
+        Optional<Account> byId = accountRepository.findById(account.getId());
+        return byId.orElseThrow().getTags(); // 없으면 에러를 던지고 있다면 태그 정보를 리턴한다.
+    }
 }

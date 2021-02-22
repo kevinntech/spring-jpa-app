@@ -1,6 +1,8 @@
 package com.studyolle.account;
 
 import com.studyolle.domain.Account;
+import com.studyolle.mail.EmailMessage;
+import com.studyolle.mail.EmailService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +41,7 @@ class AccountControllerTest {
     * 외부 연동은 Mocking으로 처리해서 쉽게 테스트 할 수 있다.
     * */
     @MockBean
-    JavaMailSender javaMailSender;
+    EmailService emailService;
 
     @DisplayName("인증 메일 확인 - 입력 값 오류")
     @Test
@@ -129,8 +131,8 @@ class AccountControllerTest {
         * */
         assertNotEquals(account.getPassword(), "12345678");
         assertNotNull(account.getEmailCheckToken()); // 토큰이 null이 아닌지 확인한다.
-        // 어떤 SimpleMailMessage 타입이든 send()가 호출 되었는지 확인한다.
-        then(javaMailSender).should().send(any(SimpleMailMessage.class));
+        // 어떤 EmailMessage 타입이든 sendEmail()가 호출 되었는지 확인한다.
+        then(emailService).should().sendEmail(any(EmailMessage.class));
     }
 
 }

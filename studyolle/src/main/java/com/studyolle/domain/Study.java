@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -16,11 +17,11 @@ public class Study{
 
     // 스터디 관리자 - 관리자가 여러 명일 수 있다고 본다.
     @ManyToMany
-    private Set<Account> managers;
+    private Set<Account> managers = new HashSet<>();
 
     // 회원
     @ManyToMany
-    private Set<Account> members;
+    private Set<Account> members = new HashSet<>();
 
     // URL 경로
     @Column(unique = true)
@@ -41,10 +42,10 @@ public class Study{
     private String image;
 
     @ManyToMany
-    private Set<Tag> tags;
+    private Set<Tag> tags = new HashSet<>();
 
     @ManyToMany
-    private Set<Zone> zones;
+    private Set<Zone> zones = new HashSet<>();
 
     private LocalDateTime publishedDateTime;
 
@@ -64,4 +65,8 @@ public class Study{
     // 배너 사용 여부
     private boolean useBanner;
 
+    // 연관관계 편의 메소드
+    public void addManager(Account account) {
+        this.managers.add(account);
+    }
 }

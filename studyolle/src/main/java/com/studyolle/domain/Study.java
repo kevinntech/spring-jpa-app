@@ -91,4 +91,9 @@ public class Study{
         return this.managers.contains(userAccount.getAccount());
     }
 
+    // 연관관계 편의 메소드
+    public void addMemeber(Account account) {
+        this.members.add(account);
+    }
+
 }
